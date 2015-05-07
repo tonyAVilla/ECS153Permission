@@ -1,4 +1,5 @@
-/*
+/*  James Zheng
+ *  jzzheng
  *  READ ME
  * This program uses Macro ID for the user id. 
  * The program will also make a log called logfile.txt for debugging purposes,
@@ -20,7 +21,7 @@
 
 using namespace std;
 ofstream log("logfile.txt", ios_base::out);
-#define ID 1000
+#define ID 7004801
 void verification();
 void check_sniff_type(struct stat *buff);
 void check_sniff_access(struct stat buff);
@@ -30,13 +31,13 @@ int main(){
 	struct stat buff;
 	try{
 		log << "=======verification=======\n";
-		//verification();
+		verification();
 		log << "=======check_sniff_type=======\n";
-		//check_sniff_type(&buff);
+		check_sniff_type(&buff);
 		log << "=======check_sniff_access========\n";
-		//check_sniff_access(buff);
+		check_sniff_access(buff);
 		log << "========check_sniff_modification_time=======\n";
-		//check_sniff_modification_time(buff);
+		check_sniff_modification_time(buff);
 		log << "========change_sniff_ownership===========\n";
 		change_sniff_ownership();
 	}
@@ -58,7 +59,7 @@ void verification(){
 		throw "ERROR: user verification failed";
 	}
 	log << "Verifying getuid: " << user_id << endl;
-	if(user_id != ID & user_id != 0){
+	if((user_id != ID) & (user_id != 0)){
 		log << "ERROR: user verification failed";
 		throw "ERROR: Access denied.";
 	}
@@ -96,7 +97,7 @@ void check_sniff_access(struct stat buff){
 	if((m & S_IRGRP) | (m & S_IWGRP) | (m & S_IXGRP)
 		| (m & S_IROTH) | (m & S_IWOTH) | (m & S_IXOTH )){
 		log << "ERROR: others can r,w,e sniff \n";
-		throw "ERROR: others can rwe sniff\n";
+		throw "ERROR: others can rwe sniff";
 	}
 }
 
