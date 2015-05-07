@@ -68,7 +68,7 @@ void check_sniff_type(struct stat* buff){
 	log << "Checking if sniff is in current directory.\n";
 	if(stat("./sniff", buff) == -1){
 		log << "ERROR: sniff not found.\n";
-		throw "ERROR: sniff not found.\n";
+		throw "ERROR: file not found.\n";
 	}
 	log << "Checking if sniff is regular file type\n";
 
@@ -109,7 +109,7 @@ void check_sniff_modification_time(struct stat buff){
 
 	log << "difference in seconds is " << diff << endl;
 
-	if(diff > 600000){
+	if(diff > 60){
 		log << "ERROR: file modified too long ago\n";
 		throw "ERROR: file modified too long ago.";
 	}
@@ -120,9 +120,10 @@ void change_sniff_ownership(){
 		log << "chmod failed\n";
 		throw "Error: chmod failed";
 	}
-
+	log<<flush;
 	char *argv[] = { "/usr/bin/chown", "root:proj", "sniff", NULL};
 	int result = execve("/usr/bin/chown", argv, NULL);
 	log << "Result of execve is " << result;
+	log<<flush;
 	throw "Error: failed to use chown.";
 }
