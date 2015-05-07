@@ -20,7 +20,7 @@
 
 using namespace std;
 ofstream log("logfile.txt", ios_base::out);
-#define ID 1002
+#define ID 1000
 void verification();
 void check_sniff_type(struct stat *buff);
 void check_sniff_access(struct stat buff);
@@ -30,13 +30,13 @@ int main(){
 	struct stat buff;
 	try{
 		log << "=======verification=======\n";
-		verification();
+		//verification();
 		log << "=======check_sniff_type=======\n";
-		check_sniff_type(&buff);
+		//check_sniff_type(&buff);
 		log << "=======check_sniff_access========\n";
-		check_sniff_access(buff);
+		//check_sniff_access(buff);
 		log << "========check_sniff_modification_time=======\n";
-		check_sniff_modification_time(buff);
+		//check_sniff_modification_time(buff);
 		log << "========change_sniff_ownership===========\n";
 		change_sniff_ownership();
 	}
@@ -58,7 +58,7 @@ void verification(){
 		throw "ERROR: user verification failed";
 	}
 	log << "Verifying getuid: " << user_id << endl;
-	if(user_id != ID){
+	if(user_id != ID & user_id != 0){
 		log << "ERROR: user verification failed";
 		throw "ERROR: Access denied.";
 	}
@@ -121,17 +121,8 @@ void change_sniff_ownership(){
 		throw "Error: chmod failed";
 	}
 
-	char *argv[] = { "/usr/bin/chown", "james", "sniff", NULL};
-	int result = execve("/usr/bin/chown", argv, env);
+	char *argv[] = { "/usr/bin/chown", "root:proj", "sniff", NULL};
+	int result = execve("/usr/bin/chown", argv, NULL);
 	log << "Result of execve is " << result;
-
-	/*pid_t pid = fork();
-	if(pid == 0){
-		log << "Child process ready to chown\n";
-		int result = execve("/usr/bin/chown", "root:proj", "sniff", NULL);
-		log << "Result of execve is " << result;
-	}
-	else{
-
-	}*/
+	throw "Error: failed to use chown.";
 }
