@@ -1,4 +1,4 @@
-all: runpriv.cpp
-	g++ -g -Wall -o myprog runpriv.cpp
+all: runpriv.c
+	gcc -Wall -o myprog runpriv.c
 clean:
-	$(RM) myprog logfile.txt
+	$(RM) myprog a.out 
