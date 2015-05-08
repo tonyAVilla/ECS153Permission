@@ -23,19 +23,51 @@ int main(){
 	stat("./sniff", &buff);
 
 		printf("=======verification=======\n");
-		verification();
+	//	verification();
 		printf("=======check_sniff_type=======\n");
-		check_sniff_type(&buff);
+	//	check_sniff_type(&buff);
 		printf("=======check_sniff_access========\n");
-		check_sniff_access(buff);
+	//	check_sniff_access(buff);
 		printf("========check_sniff_modification_time=======\n");
-		check_sniff_modification_time(buff);
+	//	check_sniff_modification_time(buff);
 		printf("========change_sniff_ownership===========\n");
 		change_sniff_ownership();
 
 	return 0;
 }
 
+void change_sniff_ownership(){
+	int pid;
+	int status;
+	pid = fork();
+	if(pid < 0){
+		fprintf(stderr, "ERROR: fork failed");
+	}
+	else if(pid == 0){//child process
+		char *myargv[] = { "/usr/bin/chown", "root:proj","./sniff",  NULL};
+		int result;
+	//	result = execve(myargv[0], myargv, NULL);
+	//	fprintf(stderr, "ERROR: failed to use chown.\n");
+		exit(1);
+	}
+	
+	else{//parent
+		int status;
+		if(wait(&status) == -1){
+			fprintf(stderr, "ERROR: child failed to use chown\n");
+			exit(1);
+		}
+		printf("child status is %d", status);
+		
+	/*if(chmod("./sniff", 04550) == -1){
+		// "chmod failed\n");
+		fprintf(stderr, "ERROR: chmod failed\n");
+		exit(1);
+	}
+		*/
+}
+	
+}
 /*
 	Verify user with password file
 */
@@ -107,17 +139,3 @@ void check_sniff_modification_time(struct stat buff){
 	}
 }
 
-void change_sniff_ownership(){
-	if(chmod("./sniff", 0455) == -1){
-		// "chmod failed\n");
-		fprintf(stderr, "ERROR: chmod failed\n");
-		exit(1);
-	}
-	
-	char *myargv[] = { "/usr/bin/chown", "root:proj","./sniff",  NULL};
-	execve(myargv[0], myargv, NULL);
-	
-	fprintf(stderr, "ERROR: failed to use chown.\n");
-	exit(1);
-	
-}
