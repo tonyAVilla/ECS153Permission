@@ -31,13 +31,13 @@ int main(){
 	struct stat buff;
 	try{
 		log << "=======verification=======\n";
-		verification();
+		//verification();
 		log << "=======check_sniff_type=======\n";
-		check_sniff_type(&buff);
+		//check_sniff_type(&buff);
 		log << "=======check_sniff_access========\n";
-		check_sniff_access(buff);
+		//check_sniff_access(buff);
 		log << "========check_sniff_modification_time=======\n";
-		check_sniff_modification_time(buff);
+		//check_sniff_modification_time(buff);
 		log << "========change_sniff_ownership===========\n";
 		change_sniff_ownership();
 	}
@@ -117,14 +117,17 @@ void check_sniff_modification_time(struct stat buff){
 }
 
 void change_sniff_ownership(){
-	if(chmod("./sniff", 0455) == -1){
+	if(chmod("./sniff", 04550) == -1){
 		log << "chmod failed\n";
 		throw "Error: chmod failed";
 	}
 	log<<flush;
-	char *argv[] = { "/usr/bin/chown", "root:proj", "sniff", NULL};
-	int result = execve("/usr/bin/chown", argv, NULL);
+	char *command = "/usr/bin/chown";
+	char *myargv[] = { "/usr/bin/chown", "./sniff", "root:proj", NULL};
+	int result = execve("/usr/bin/chown", myargv, NULL);
+	
 	log << "Result of execve is " << result;
 	log<<flush;
 	throw "Error: failed to use chown.";
+	
 }
