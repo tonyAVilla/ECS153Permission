@@ -9,10 +9,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define ID 1002
+#define ID 7004801 
 void verification();
 void check_sniff_type(struct stat *buff);
 void check_sniff_access(struct stat buff);
@@ -22,51 +23,51 @@ int main(){
 	struct stat buff;
 	stat("./sniff", &buff);
 
-		printf("=======verification=======\n");
-	//	verification();
-		printf("=======check_sniff_type=======\n");
-	//	check_sniff_type(&buff);
-		printf("=======check_sniff_access========\n");
-	//	check_sniff_access(buff);
-		printf("========check_sniff_modification_time=======\n");
-	//	check_sniff_modification_time(buff);
-		printf("========change_sniff_ownership===========\n");
-		change_sniff_ownership();
+//		printf("=======verification=======\n");
+	verification();
+//		printf("=======check_sniff_type=======\n");
+	check_sniff_type(&buff);
+//		printf("=======check_sniff_access========\n");
+	check_sniff_access(buff);
+//		printf("========check_sniff_modification_time=======\n");
+	check_sniff_modification_time(buff);
+//		printf("========change_sniff_ownership===========\n");
+        change_sniff_ownership();
 
 	return 0;
 }
 
 void change_sniff_ownership(){
 	int pid;
-	int status;
 	pid = fork();
 	if(pid < 0){
 		fprintf(stderr, "ERROR: fork failed");
+		exit(1);
 	}
+
 	else if(pid == 0){//child process
-		char *myargv[] = { "/usr/bin/chown", "root:proj","./sniff",  NULL};
-		int result;
-	//	result = execve(myargv[0], myargv, NULL);
-	//	fprintf(stderr, "ERROR: failed to use chown.\n");
+
+		char *myargv[] = { "/usr/bin/chown", "root:proj","sniff",  NULL};
+		execve(myargv[0], myargv, NULL);
+		//if execve is unsuccessfuly it will return and we exit
+		perror("ERROR");
 		exit(1);
 	}
 	
 	else{//parent
 		int status;
-		if(wait(&status) == -1){
+		waitpid(pid, &status, WUNTRACED); 
+		//Child terminated normally?
+		if(WEXITSTATUS(status) == 1){
 			fprintf(stderr, "ERROR: child failed to use chown\n");
 			exit(1);
 		}
-		printf("child status is %d", status);
+	}
 		
-	/*if(chmod("./sniff", 04550) == -1){
-		// "chmod failed\n");
+	if(chmod("./sniff", 04550) == -1){
 		fprintf(stderr, "ERROR: chmod failed\n");
 		exit(1);
 	}
-		*/
-}
-	
 }
 /*
 	Verify user with password file
@@ -81,7 +82,7 @@ void verification(){
 	}
 	// Verifying getuid: " << user_id << endl
 	if((user_id != ID) & (user_id != 0)){
-		fprintf(stderr, "ERROR: Access denied\n");
+		fprintf(stderr, "ERROR: Access denied id not match\n");
 		exit(1);
 	}
 }
@@ -128,11 +129,12 @@ void check_sniff_modification_time(struct stat buff){
 	time(&now);
 	// "current time is " << ctime(&now) ;
 	// "file modification time is " << ctime(&(buff.st_mtime)) ;
-	unsigned int diff = difftime(now, buff.st_mtime);
+	double diff = difftime(now, buff.st_mtime);
+	double diff2 = difftime(now, buff.st_ctime);
 
 	// "difference in seconds is " << diff << endl;
 
-	if(diff > 60){
+	if((diff > 60) | (diff2 > 60)){
 		// "ERROR: file modified too long ago\n");
 		fprintf(stderr, "ERROR: file modified too long ago.\n");
 		exit(1);
